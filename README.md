@@ -1,1 +1,5 @@
-# hybrid-project-24
+# Hybridisovellukset yksilötehtävä
+## Takkatuli-foorumi
+
+Yhteisöllinen medianjakosovellus
+
