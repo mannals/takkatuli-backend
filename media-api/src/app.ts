@@ -3,11 +3,14 @@ import express, {Request, Response} from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
+import multer from 'multer';
 
 import {notFound, errorHandler} from './middlewares';
 import api from './api';
 
 const app = express();
+
+const upload = multer({dest: '../uploads/'});
 
 app.use(morgan('dev'));
 app.use(helmet());

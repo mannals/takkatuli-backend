@@ -1,24 +1,25 @@
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
-import {Thread, TokenContent} from '@sharedTypes/DBTypes';
+import {Post, TokenContent} from '@sharedTypes/DBTypes';
 import promisePool from '../../lib/db';
 import {fetchData} from '../../lib/functions';
 import {MessageResponse} from '@sharedTypes/MessageTypes';
 
 /**
- * Get all media items from the database
+ * Get all posts from the database
+ * whether they are original posts or replies
  *
  * @returns {array} - array of media items
  * @throws {Error} - error if database query fails
  */
 
-const fetchAllMedia = async (): Promise<Thread[] | null> => {
+const fetchAllPosts = async (): Promise<Post[] | null> => {
   const uploadPath = process.env.UPLOAD_URL;
   try {
-    const [rows] = await promisePool.execute<RowDataPacket[] & Thread[]>(
+    const [rows] = await promisePool.execute<RowDataPacket[] & Post[]>(
       `SELECT *,
       CONCAT(?, filename) AS filename,
       CONCAT(?, CONCAT(filename, "-thumb.png")) AS thumbnail
-      FROM Threads`,
+      FROM Posts`,
       [uploadPath, uploadPath]
     );
     if (rows.length === 0) {
@@ -26,51 +27,58 @@ const fetchAllMedia = async (): Promise<Thread[] | null> => {
     }
     return rows;
   } catch (e) {
-    console.error('fetchAllMedia error', (e as Error).message);
+    console.error('fetchAllPosts error', (e as Error).message);
     throw new Error((e as Error).message);
   }
 };
 
-const fetchAllMediaByAppId = async (id: string): Promise<Thread[] | null> => {
+/**
+ * Get all posts from database
+ * that are not replies to other posts
+ *
+ * @returns {array} - array of media items
+ * @throws {Error} - error if database query fails
+ */
+const fetchAllOriginalPosts = async (): Promise<Post[] | null> => {
   const uploadPath = process.env.UPLOAD_URL;
   try {
-    const [rows] = await promisePool.execute<RowDataPacket[] & Thread[]>(
+    const [rows] = await promisePool.execute<RowDataPacket[] & Post[]>(
       `SELECT *,
       CONCAT(?, filename) AS filename,
       CONCAT(?, CONCAT(filename, "-thumb.png")) AS thumbnail
-      FROM Threads
-      WHERE app_id = ?`,
-      [uploadPath, uploadPath, id]
+      FROM Posts
+      WHERE reply_to IS NULL`,
+      [uploadPath, uploadPath]
     );
     if (rows.length === 0) {
       return null;
     }
     return rows;
   } catch (e) {
-    console.error('fetchAllMedia error', (e as Error).message);
+    console.error('fetchAllOriginalPosts error', (e as Error).message);
     throw new Error((e as Error).message);
   }
 };
 
 /**
- * Get media item by id from the database
+ * Get post by id from the database
  *
  * @param {number} id - id of the media item
  * @returns {object} - object containing all information about the media item
  * @throws {Error} - error if database query fails
  */
 
-const fetchMediaById = async (id: number): Promise<Thread | null> => {
+const fetchPostById = async (id: number): Promise<Post | null> => {
   const uploadPath = process.env.UPLOAD_URL;
   try {
     // TODO: replace * with specific column names needed in this case
-    const sql = `SELECT *,
+    const sql = `SELECT post_id, user_id, category_id, title, text_content,
                 CONCAT(?, filename) AS filename,
                 CONCAT(?, CONCAT(filename, "-thumb.png")) AS thumbnail
-                FROM MediaItems
-                WHERE media_id=?`;
+                FROM Posts
+                WHERE post_id=?`;
     const params = [uploadPath, uploadPath, id];
-    const [rows] = await promisePool.execute<RowDataPacket[] & Thread[]>(
+    const [rows] = await promisePool.execute<RowDataPacket[] & Post[]>(
       sql,
       params
     );
@@ -79,7 +87,38 @@ const fetchMediaById = async (id: number): Promise<Thread | null> => {
     }
     return rows[0];
   } catch (e) {
-    console.error('fetchMediaById error', (e as Error).message);
+    console.error('fetchPostById error', (e as Error).message);
+    throw new Error((e as Error).message);
+  }
+};
+
+/**
+ * Get replies to post with post id from database
+ *
+ * @param {number} id - id of the media item
+ * @returns {object} - object containing all information about the media item
+ * @throws {Error} - error if database query fails
+ */
+const fetchRepliesById = async (id: number): Promise<Post | null> => {
+  const uploadPath = process.env.UPLOAD_URL;
+  try {
+    // TODO: replace * with specific column names needed in this case
+    const sql = `SELECT *,
+                CONCAT(?, filename) AS filename,
+                CONCAT(?, CONCAT(filename, "-thumb.png")) AS thumbnail
+                FROM Posts
+                WHERE reply_to=?`;
+    const params = [uploadPath, uploadPath, id];
+    const [rows] = await promisePool.execute<RowDataPacket[] & Post[]>(
+      sql,
+      params
+    );
+    if (rows.length === 0) {
+      return null;
+    }
+    return rows[0];
+  } catch (e) {
+    console.error('fetchRepliesById error', (e as Error).message);
     throw new Error((e as Error).message);
   }
 };
@@ -92,17 +131,35 @@ const fetchMediaById = async (id: number): Promise<Thread | null> => {
  * @throws {Error} - error if database query fails
  */
 const postMedia = async (
-  media: Omit<Thread, 'thread_id' | 'created_at'>
-): Promise<Thread | null> => {
-  const {user_id, filename, filesize, media_type, title, text_content} = media;
-  const sql = `INSERT INTO MediaItems (user_id, filename, filesize, media_type, title, description)
-               VALUES (?, ?, ?, ?, ?, ?)`;
-  const params = [user_id, filename, filesize, media_type, title, text_content];
+  media: Omit<Post, 'post_id' | 'created_at'>
+): Promise<Post | null> => {
+  const {
+    user_id,
+    filename,
+    filesize,
+    media_type,
+    is_poll,
+    reply_to,
+    title,
+    text_content,
+  } = media;
+  const sql = `INSERT INTO Posts (user_id, filename, filesize, media_type, is_poll, reply_to, title, description)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  const params = [
+    user_id,
+    filename,
+    filesize,
+    media_type,
+    is_poll,
+    reply_to,
+    title,
+    text_content,
+  ];
   try {
     const result = await promisePool.execute<ResultSetHeader>(sql, params);
     console.log('result', result);
-    const [rows] = await promisePool.execute<RowDataPacket[] & Thread[]>(
-      'SELECT * FROM MediaItems WHERE media_id = ?',
+    const [rows] = await promisePool.execute<RowDataPacket[] & Post[]>(
+      'SELECT * FROM Posts WHERE post_id = ?',
       [result[0].insertId]
     );
     if (rows.length === 0) {
@@ -125,14 +182,11 @@ const postMedia = async (
  */
 
 const putMedia = async (
-  media: Pick<Thread, 'title' | 'text_content'>,
+  media: Pick<Post, 'title' | 'text_content'>,
   id: number
 ) => {
   try {
-    const sql = promisePool.format('UPDATE MediaItems SET ? WHERE ?', [
-      media,
-      id,
-    ]);
+    const sql = promisePool.format('UPDATE Posts SET ? WHERE ?', [media, id]);
     const result = await promisePool.execute<ResultSetHeader>(sql);
     console.log('result', result);
     return {media_id: result[0].insertId};
@@ -150,17 +204,17 @@ const putMedia = async (
  * @throws {Error} - error if database query fails
  */
 
-const deleteMedia = async (
+const deletePost = async (
   id: number,
   user: TokenContent,
   token: string
 ): Promise<MessageResponse> => {
-  console.log('deleteMedia', id);
-  const media = await fetchMediaById(id);
+  console.log('deletePost', id);
+  const media = await fetchPostById(id);
   console.log(media);
 
   if (!media) {
-    return {message: 'Media not found'};
+    return {message: 'Post not found'};
   }
 
   // if admin add user_id from media object to user object from token content
@@ -183,20 +237,27 @@ const deleteMedia = async (
   try {
     await connection.beginTransaction();
 
-    await connection.execute('DELETE FROM Likes WHERE media_id = ?;', [id]);
+    await connection.execute('DELETE FROM PostVotes WHERE post_id = ?;', [id]);
 
-    await connection.execute('DELETE FROM Comments WHERE media_id = ?;', [id]);
+    await connection.execute(
+      'DELETE FROM PollOptionVotes WHERE option_id = (SELECT option_id FROM PollOptions WHERE post_id = ?);',
+      [id]
+    );
 
-    await connection.execute('DELETE FROM Ratings WHERE media_id = ?;', [id]);
+    await connection.execute('DELETE FROM PollOptions WHERE post_id = ?;', [
+      id,
+    ]);
+
+    await connection.execute('DELETE FROM Posts WHERE reply_to = ?;', [id]);
 
     // ! user_id in SQL so that only the owner of the media item can delete it
     const [result] = await connection.execute<ResultSetHeader>(
-      'DELETE FROM MediaItems WHERE media_id = ? and user_id = ?;',
+      'DELETE FROM Posts WHERE post_id = ? and user_id = ?;',
       [id, user.user_id]
     );
 
     if (result.affectedRows === 0) {
-      return {message: 'Media not deleted'};
+      return {message: 'Post not deleted'};
     }
 
     // delete file from upload server
@@ -220,7 +281,7 @@ const deleteMedia = async (
     // if no errors commit transaction
     await connection.commit();
 
-    return {message: 'Media deleted'};
+    return {message: 'Post deleted'};
   } catch (e) {
     await connection.rollback();
     console.error('error', (e as Error).message);
@@ -237,10 +298,10 @@ const deleteMedia = async (
  * @throws {Error} - error if database query fails
  */
 
-const fetchMostLikedMedia = async (): Promise<Thread | undefined> => {
+const fetchMostLikedPosts = async (): Promise<Post | undefined> => {
   try {
-    const [rows] = await promisePool.execute<RowDataPacket[] & Thread[]>(
-      'SELECT * FROM `MostLikedMedia`'
+    const [rows] = await promisePool.execute<RowDataPacket[] & Post[]>(
+      'SELECT * FROM `MostLikedPosts`'
     );
     if (rows.length === 0) {
       return undefined;
@@ -248,7 +309,7 @@ const fetchMostLikedMedia = async (): Promise<Thread | undefined> => {
     rows[0].filename =
       process.env.MEDIA_SERVER + '/uploads/' + rows[0].filename;
   } catch (e) {
-    console.error('getMostLikedMedia error', (e as Error).message);
+    console.error('getMostLikedPosts error', (e as Error).message);
     throw new Error((e as Error).message);
   }
 };
@@ -260,10 +321,10 @@ const fetchMostLikedMedia = async (): Promise<Thread | undefined> => {
  * @throws {Error} - error if database query fails
  */
 
-const fetchMostCommentedMedia = async (): Promise<Thread | undefined> => {
+const fetchMostCommentedMedia = async (): Promise<Post | undefined> => {
   try {
-    const [rows] = await promisePool.execute<RowDataPacket[] & Thread[]>(
-      'SELECT * FROM `MostCommentedMedia`'
+    const [rows] = await promisePool.execute<RowDataPacket[] & Post[]>(
+      'SELECT * FROM `MostCommentedPosts`'
     );
     if (rows.length === 0) {
       return undefined;
@@ -271,43 +332,19 @@ const fetchMostCommentedMedia = async (): Promise<Thread | undefined> => {
     rows[0].filename =
       process.env.MEDIA_SERVER + '/uploads/' + rows[0].filename;
   } catch (e) {
-    console.error('getMostCommentedMedia error', (e as Error).message);
-    throw new Error((e as Error).message);
-  }
-};
-
-/**
- * Get all the highest rated media items from the database
- *
- * @returns {object} - object containing all information about the highest rated media item
- * @throws {Error} - error if database query fails
- */
-
-const fetchHighestRatedMedia = async (): Promise<Thread | undefined> => {
-  try {
-    const [rows] = await promisePool.execute<RowDataPacket[] & Thread[]>(
-      'SELECT * FROM `HighestRatedMedia`'
-    );
-    if (rows.length === 0) {
-      return undefined;
-    }
-    rows[0].filename =
-      process.env.MEDIA_SERVER + '/uploads/' + rows[0].filename;
-    return rows[0];
-  } catch (e) {
-    console.error('getHighestRatedMedia error', (e as Error).message);
+    console.error('getMostCommentedPosts error', (e as Error).message);
     throw new Error((e as Error).message);
   }
 };
 
 export {
-  fetchAllMedia,
-  fetchAllMediaByAppId,
-  fetchMediaById,
+  fetchAllPosts,
+  fetchAllOriginalPosts,
+  fetchPostById,
+  fetchRepliesById,
   postMedia,
-  deleteMedia,
-  fetchMostLikedMedia,
+  deletePost,
+  fetchMostLikedPosts,
   fetchMostCommentedMedia,
-  fetchHighestRatedMedia,
   putMedia,
 };

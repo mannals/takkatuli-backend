@@ -38,13 +38,15 @@ const uploadFile = async (
       );
     }
 
+    const fileData = {
+      filename: filename,
+      media_type: req.file.mimetype,
+      filesize: req.file.size,
+    };
+
     const response = {
       message: 'file uploaded',
-      data: {
-        filename,
-        media_type: req.file.mimetype,
-        filesize: req.file.size,
-      },
+      data: fileData,
     };
     res.json(response);
   } catch (error) {

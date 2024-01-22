@@ -20,42 +20,41 @@ type Category = {
     created_at: Date | string;
 };
 
-type Thread = {
-    thread_id: number,
+type Post = {
+    post_id: number,
     user_id: number,
     category_id: number,
     filename: string | null,
     filesize: number | null,
     media_type: string | null,
+    is_poll: boolean | null,
+    reply_to: number | null,
     title: string,
     text_content: string,
     created_at: Date | string,
     edited_at: Date | string | null;
 };
 
-type ThreadLike = {
-    like_id: number,
-    thread_id: number,
-    user_id: number,
-    created_at: Date | string;
-};
-
-type Reply = {
-    reply_id: number,
-    thread_id: number,
-    user_id: number,
-    filename: string | null,
-    filesize: number | null,
-    media_type: string | null,
-    reply_text: string,
+type PollOption = {
+    option_id: number,
+    post_id: number,
+    title: string,
     created_at: Date | string,
     edited_at: Date | string | null;
-};
+}
 
-type ReplyLike = {
-    like_id: number,
-    reply_id: number,
+type PollOptionVote = {
+    vote_id: number,
+    option_id: number,
     user_id: number,
+    created_at: Date | string | null;
+}
+
+type PostVote = {
+    vote_id: number,
+    post_id: number,
+    user_id: number,
+    approve: boolean,
     created_at: Date | string;
 };
 
@@ -66,9 +65,9 @@ type UploadResult = {
     };
 };
 
-type MostLikedThreads = Pick<
-Thread,
-| 'thread_id'
+type MostLikedPosts = Pick<
+Post,
+| 'post_id'
 | 'filename'
 | 'filesize'
 | 'media_type'
@@ -87,7 +86,11 @@ type UserWithNoPassword = Omit<UserWithLevel, 'password'>;
 
 type TokenContent = Pick<User, 'user_id'> & Pick<UserLevel, 'level_name'>;
 
-type ThreadWithOwner = Thread & Pick<User, 'username'>;
+type PostWithOwner = Post & Pick<User, 'username'>;
+
+type OriginalPost = Omit<Post, 'reply_to'>;
+
+type PostWithoutPoll = Omit<Post, 'is_poll'>;
 
 type FileInfo = {
     filename: string;
@@ -98,15 +101,17 @@ export type {
     UserLevel,
     User,
     Category,
-    Thread,
-    ThreadLike,
-    Reply,
-    ReplyLike,
+    Post,
+    PollOption,
+    PollOptionVote,
+    PostVote,
     UploadResult,
-    MostLikedThreads,
+    MostLikedPosts,
     UserWithLevel,
     UserWithNoPassword,
     TokenContent,
-    ThreadWithOwner,
+    PostWithOwner,
+    OriginalPost,
+    PostWithoutPoll,
     FileInfo
 };

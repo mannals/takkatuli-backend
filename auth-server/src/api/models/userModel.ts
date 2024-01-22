@@ -128,7 +128,7 @@ const createUser = async (user: User): Promise<UserWithNoPassword | null> => {
     INSERT INTO Users (username, password, email, user_level_id)
     VALUES (?, ?, ?, ?)
   `,
-      [user.username, user.password, user.email, 2],
+      [user.username, user.password, user.email, user.user_level_id],
     );
 
     if (result[0].affectedRows === 0) {
@@ -151,7 +151,7 @@ const modifyUser = async (
     const sql = promisePool.format(
       `
       UPDATE Users
-      SET ?
+      SET edited_at = CURRENT_TIMESTAMP, ?
       WHERE user_id = ?
       `,
       [user, id],
@@ -184,7 +184,7 @@ const deleteUser = async (id: number): Promise<UserDeleteResponse | null> => {
       id,
     ]);
     await connection.execute(
-      'DELETE FROM ReplyLikes WHERE thread_id IN (SELECT reply_id FROM Replies WHERE user_id = ?);',
+      'DELETE FROM ReplyLikes WHERE reply_id IN (SELECT reply_id FROM Replies WHERE user_id = ?);',
       [id],
     );
     await connection.execute(

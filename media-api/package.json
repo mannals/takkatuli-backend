@@ -2,7 +2,7 @@
   "name": "media-api",
   "version": "1.0.0",
   "description": "'express.js API with Typescript'",
-  "main": "src/index.js",
+  "main": "src/index.ts",
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
@@ -21,6 +21,7 @@
     "helmet": "^6.0.1",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
     "mysql2": "^3.1.2"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "@types/jest": "^29.2.5",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/morgan": "^1.9.4",
+    "@types/multer": "^1.4.11",
     "@types/node": "^18.11.18",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.48.2",
