@@ -16,6 +16,7 @@ import {validationResult} from 'express-validator';
 
 const salt = bcrypt.genSaltSync(12);
 
+/* GET ALL USERS */
 const userListGet = async (
   req: Request,
   res: Response<UserWithNoPassword[]>,
@@ -34,6 +35,7 @@ const userListGet = async (
   }
 };
 
+/* GET USER BY ID */
 const userGet = async (
   req: Request<{id: number}>,
   res: Response<UserWithNoPassword>,
@@ -61,8 +63,9 @@ const userGet = async (
   }
 };
 
+/* REGISTER USER */
 const userPost = async (
-  req: Request<{}, {}, User>,
+  req: Request<{}, {}, Pick<User, 'username' | 'password' | 'email'>>,
   res: Response<UserResponse>,
   next: NextFunction,
 ) => {
@@ -99,6 +102,7 @@ const userPost = async (
   }
 };
 
+/* EDIT USER DATA */
 const userPut = async (
   req: Request<{}, {}, User>,
   res: Response<UserResponse, {user: TokenContent}>,
@@ -144,6 +148,7 @@ const userPut = async (
   }
 };
 
+/* DELETE USER */
 const userDelete = async (
   req: Request,
   res: Response<UserDeleteResponse, {user: TokenContent}>,
@@ -166,6 +171,7 @@ const userDelete = async (
   }
 };
 
+/* GET ADMIN PRIVILEGES FOR USER */
 const userPutAsAdmin = async (
   req: Request<{id: string}, {}, User>,
   res: Response<UserResponse, {user: TokenContent}>,
@@ -209,6 +215,7 @@ const userPutAsAdmin = async (
   }
 };
 
+/* GIVE UP ADMIN PRIVILEGES OF USER */
 const userDeleteAsAdmin = async (
   req: Request<{id: string}>,
   res: Response<UserDeleteResponse, {user: TokenContent}>,
@@ -244,6 +251,7 @@ const userDeleteAsAdmin = async (
   }
 };
 
+/* CHECK TOKEN */
 const checkToken = async (
   req: Request,
   res: Response<UserResponse, {user: TokenContent}>,
@@ -264,6 +272,7 @@ const checkToken = async (
   res.json(message);
 };
 
+/* EMAIL VALIDATION */
 const checkEmailExists = async (
   req: Request<{email: string}>,
   res: Response<{available: boolean}>,
@@ -289,6 +298,7 @@ const checkEmailExists = async (
   }
 };
 
+/* USERNAME VALIDATION */
 const checkUsernameExists = async (
   req: Request<{username: string}>,
   res: Response<{available: boolean}>,

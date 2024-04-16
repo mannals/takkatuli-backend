@@ -121,14 +121,14 @@ const getUserByUsername = async (
   }
 };
 
-const createUser = async (user: User): Promise<UserWithNoPassword | null> => {
+const createUser = async (user: Pick<User, 'username' | 'password' | 'email'>): Promise<UserWithNoPassword | null> => {
   try {
     const result = await promisePool.execute<ResultSetHeader>(
       `
-    INSERT INTO Users (username, password, email, user_level_id)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO Users (username, password, email)
+    VALUES (?, ?, ?)
   `,
-      [user.username, user.password, user.email, user.user_level_id],
+      [user.username, user.password, user.email],
     );
 
     if (result[0].affectedRows === 0) {
@@ -175,27 +175,13 @@ const deleteUser = async (id: number): Promise<UserDeleteResponse | null> => {
   const connection = await promisePool.getConnection();
   try {
     await connection.beginTransaction();
-    await connection.execute('DELETE FROM ReplyLikes WHERE user_id = ?;', [id]);
-    await connection.execute('DELETE FROM Replies WHERE user_id = ?;', [id]);
+    await connection.execute('DELETE FROM PostVotes WHERE user_id = ?;', [id]);
+    await connection.execute('DELETE FROM PostVotes WHERE post_id = (SELECT post_id FROM Posts WHERE reply_to = (SELECT post_id FROM Posts WHERE user_id = ?));', [id]);
     await connection.execute('DELETE FROM PollOptionVotes WHERE user_id = ?;', [
       id,
     ]);
-    await connection.execute('DELETE FROM ThreadLikes WHERE user_id = ?;', [
-      id,
-    ]);
-    await connection.execute(
-      'DELETE FROM ReplyLikes WHERE reply_id IN (SELECT reply_id FROM Replies WHERE user_id = ?);',
-      [id],
-    );
-    await connection.execute(
-      'DELETE FROM Replies WHERE thread_id IN (SELECT thread_id FROM Threads WHERE user_id = ?);',
-      [id],
-    );
-    await connection.execute(
-      'DELETE FROM ThreadLikes WHERE thread_id IN (SELECT thread_id FROM Threads WHERE user_id = ?);',
-      [id],
-    );
-    await connection.execute('DELETE FROM Threads WHERE user_id = ?;', [id]);
+    await connection.execute('DELETE FROM PollOptions WHERE post_id = (SELECT post_id FROM Posts WHERE user_id = ?);', [id]);
+    await connection.execute('DELETE FROM Posts WHERE reply_to = (SELECT post_id FROM Posts WHERE user_id = ?);', [id]);
     const [result] = await connection.execute<ResultSetHeader>(
       'DELETE FROM Users WHERE user_id = ?;',
       [id],
