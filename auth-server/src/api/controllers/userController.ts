@@ -3,15 +3,23 @@ import CustomError from '../../classes/CustomError';
 import bcrypt from 'bcryptjs';
 import {UserDeleteResponse, UserResponse} from '@sharedTypes/MessageTypes';
 import {
+  changeUserPassword,
   createUser,
   deleteUser,
   getAllUsers,
   getUserByEmail,
   getUserById,
   getUserByUsername,
+  getUserPassword,
+  getUserWithProfilePicture,
   modifyUser,
 } from '../models/userModel';
-import {TokenContent, User, UserWithNoPassword} from '@sharedTypes/DBTypes';
+import {
+  TokenContent,
+  User,
+  UserWithNoPassword,
+  UserWithProfilePicture,
+} from '@sharedTypes/DBTypes';
 import {validationResult} from 'express-validator';
 
 const salt = bcrypt.genSaltSync(12);
@@ -53,6 +61,34 @@ const userGet = async (
   }
   try {
     const user = await getUserById(req.params.id);
+    if (user === null) {
+      next(new CustomError('User not found', 404));
+      return;
+    }
+    res.json(user);
+  } catch (error) {
+    next(new CustomError((error as Error).message, 500));
+  }
+};
+
+/* GET USER WITH PROFILE PICTURE BY ID */
+const userProfPicGet = async (
+  req: Request<{id: number}>,
+  res: Response<UserWithProfilePicture>,
+  next: NextFunction,
+) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const messages: string = errors
+      .array()
+      .map((error) => `${error.msg}`)
+      .join(', ');
+    console.log('userGet validation', messages);
+    next(new CustomError(messages, 400));
+    return;
+  }
+  try {
+    const user = await getUserWithProfilePicture(req.params.id);
     if (user === null) {
       next(new CustomError('User not found', 404));
       return;
@@ -105,7 +141,7 @@ const userPost = async (
 /* EDIT USER DATA */
 const userPut = async (
   req: Request<{}, {}, User>,
-  res: Response<UserResponse, {user: TokenContent}>,
+  res: Response<UserResponse, {user: UserWithProfilePicture}>,
   next: NextFunction,
 ) => {
   const errors = validationResult(req);
@@ -171,87 +207,43 @@ const userDelete = async (
   }
 };
 
-/* GET ADMIN PRIVILEGES FOR USER */
-const userPutAsAdmin = async (
-  req: Request<{id: string}, {}, User>,
-  res: Response<UserResponse, {user: TokenContent}>,
+/* CHANGE USER PASSWORD */
+const userChangePassword = async (
+  req: Request<{}, {}, {old_password: string; new_password: string}>,
+  res: Response,
   next: NextFunction,
 ) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const messages: string = errors
-      .array()
-      .map((error) => `${error.msg}`)
-      .join(', ');
-    console.log('userPutAsAdmin validation', messages);
-    next(new CustomError(messages, 400));
-    return;
-  }
+  console.log('userChangePassword');
 
   try {
-    if (res.locals.user.level_name !== 'Admin') {
-      next(new CustomError('You are not authorized to do this', 401));
+    const userFromToken = res.locals.user;
+    console.log('user from token', userFromToken);
+    const confirmOldPassword = await getUserPassword(userFromToken.user_id);
+    if (!confirmOldPassword) {
+      next(new CustomError('User not found', 404));
       return;
     }
-    const user = req.body;
-    if (user.password) {
-      user.password = await bcrypt.hash(user.password, salt);
+
+    if (!bcrypt.compareSync(req.body.old_password, confirmOldPassword)) {
+      next(new CustomError('Incorrect password', 403));
+      return;
     }
 
-    const result = await modifyUser(user, Number(req.params.id));
+    const newPassword = await bcrypt.hash(req.body.new_password, salt);
+    const result = await changeUserPassword(userFromToken.user_id, newPassword);
 
     if (!result) {
       next(new CustomError('User not found', 404));
       return;
     }
 
-    const response: UserResponse = {
-      message: 'user updated',
-      user: result,
-    };
-    res.json(response);
+    res.json({message: 'Password changed'});
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
 };
 
-/* GIVE UP ADMIN PRIVILEGES OF USER */
-const userDeleteAsAdmin = async (
-  req: Request<{id: string}>,
-  res: Response<UserDeleteResponse, {user: TokenContent}>,
-  next: NextFunction,
-) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const messages: string = errors
-      .array()
-      .map((error) => `${error.msg}`)
-      .join(', ');
-    console.log('userDeleteAsAdmin validation', messages);
-    next(new CustomError(messages, 400));
-    return;
-  }
-
-  try {
-    if (res.locals.user.level_name !== 'Admin') {
-      next(new CustomError('You are not authorized to do this', 401));
-      return;
-    }
-
-    const result = await deleteUser(Number(req.params.id));
-
-    if (!result) {
-      next(new CustomError('User not found', 404));
-      return;
-    }
-
-    res.json(result);
-  } catch (error) {
-    next(new CustomError((error as Error).message, 500));
-  }
-};
-
-/* CHECK TOKEN */
+/* GET USER BY TOKEN */
 const checkToken = async (
   req: Request,
   res: Response<UserResponse, {user: TokenContent}>,
@@ -259,7 +251,7 @@ const checkToken = async (
 ) => {
   const userFromToken = res.locals.user;
   // check if user exists in database
-  const user = await getUserById(userFromToken.user_id);
+  const user = await getUserWithProfilePicture(userFromToken.user_id);
   if (!user) {
     next(new CustomError('User not found', 404));
     return;
@@ -326,11 +318,11 @@ const checkUsernameExists = async (
 export {
   userListGet,
   userGet,
+  userProfPicGet,
   userPost,
   userPut,
   userDelete,
-  userPutAsAdmin,
-  userDeleteAsAdmin,
+  userChangePassword,
   checkToken,
   checkEmailExists,
   checkUsernameExists,

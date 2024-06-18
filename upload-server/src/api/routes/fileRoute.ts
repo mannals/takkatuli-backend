@@ -17,8 +17,6 @@ const fileFilter = (
 const upload = multer({dest: './uploads/', fileFilter});
 const router = express.Router();
 
-// TODO: validation
-
 router
   .route('/upload')
   .post(authenticate, upload.single('file'), makeThumbnail, uploadFile);

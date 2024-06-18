@@ -3,13 +3,13 @@ import {
   checkEmailExists,
   checkToken,
   checkUsernameExists,
+  userChangePassword,
   userDelete,
-  userDeleteAsAdmin,
   userGet,
   userListGet,
   userPost,
+  userProfPicGet,
   userPut,
-  userPutAsAdmin,
 } from '../controllers/userController';
 import {authenticate} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -217,84 +217,60 @@ router.get('/token', authenticate, checkToken);
 router.route('/:id').get(param('id').isNumeric(), userGet);
 
 /**
- * @api {put} /users/:id Update User As Admin
- * @apiName UpdateUserAsAdmin
+ * @api {get} /users/:id/profpic Get User Information With Profile Picture
+ * @apiName GetUserWithProfilePicture
  * @apiGroup User
- * @apiPermission admin
+ * @apiPermission Bearer Token
  *
  * @apiHeader {String} Authorization Users unique access-token (Bearer Token).
- *
  * @apiParam {Number} id User's unique ID.
  *
- * @apiParam (Request body) {Object} user User's information.
- * @apiParam (Request body) {String} [user.username] Username of the User.
- * @apiParam (Request body) {String} [user.password] Password of the User.
- * @apiParam (Request body) {String} [user.email] Email of the User.
- *
- * @apiParamExample {json} Request-Example:
- *     {
- *         "username": "UpdatedUser",
- *         "password": "updatedPassword",
- *         "email": "updateduser@example.com"
- *     }
- *
- * @apiSuccess {String} message Success message.
- * @apiSuccess {Object} user User's information.
+ * @apiSuccess {Object} user User's information including profile picture.
  * @apiSuccess {Number} user.user_id User's unique ID.
  * @apiSuccess {String} user.username User's username.
  * @apiSuccess {String} user.email User's email.
+ * @apiSuccess {String} user.bio_text User's bio text.
  * @apiSuccess {Date} user.created_at Timestamp when the user was created.
- * @apiSuccess {String} user.level_name User's level.
+ * @apiSuccess {Date} user.edited_at Timestamp when the user was last edited.
+ * @apiSuccess {String} user.level_name User's level (Admin | User | Guest).
+ * @apiSuccess {String} user.filename Profile picture's filename.
+ * @apiSuccess {Number} user.filesize Profile picture's filesize.
+ * @apiSuccess {String} user.media_type Profile picture's media type.
  *
  * @apiSuccessExample {json} Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "message": "user updated",
- *       "user": {
- *         "user_id": 5,
- *         "username": "testuser",
- *         "email": "ile@mail.fi",
- *         "created_at": "2024-01-01T19:24:37.000Z",
- *         "level_name": "User"
- *       }
- *     }
+ *    HTTP/1.1 200 OK
+ *      {
+ *        "user_id": 1,'
+ *        "username": "DummyUser1",
+ *        "email": "example@mail.com",
+ *        "bio_text": "This is a bio text",
+ *        "created_at": "2022-01-01T00:00:00.000Z",
+ *        "edited_at": "2022-01-01T00:00:00.000Z",
+ *        "level_name": "Admin",
+ *        "filename": "profilepic.jpg",
+ *        "filesize": 12345,
+ *        "media_type": "image/jpeg"
+ *      }
  */
-router
-  .route('/:id')
-  .put(
-    authenticate,
-    param('id').isNumeric(),
-    body('username').optional().isString().escape().trim().isLength({min: 3}),
-    body('password').optional().isString().escape().trim().isLength({min: 5}),
-    body('email').optional().isEmail(),
-    userPutAsAdmin,
-  );
+router.route('/:id/profpic').get(param('id').isNumeric(), userProfPicGet);
 
 /**
- * @api {delete} /users/:id Delete User as Admin
- * @apiName DeleteUserAsAdmin
+ * @api {put} /users/password Change Password
+ * @apiName ChangePassword
  * @apiGroup User
- * @apiPermission admin
  *
- * @apiHeader {String} Authorization Users unique access-token (Bearer Token).
- * @apiParam {Number} id User's unique ID.
+ * @apiParam {String} old_password User's old password.
+ * @apiParam {String} new_password User's new password.
  *
  * @apiSuccess {String} message Success message.
- * @apiSuccess {Object} user User's information.
- * @apiSuccess {Number} user.id User's unique ID.
  *
  * @apiSuccessExample {json} Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "message": "user deleted",
- *       "user": {
- *         "id": 1
- *       }
- *     }
+ *   HTTP/1.1 200 OK
+ *    {
+ *      "message": "Password changed"
+ *    }
  */
-router
-  .route('/:id')
-  .delete(authenticate, param('id').isNumeric(), userDeleteAsAdmin);
+router.route('/password').put(authenticate, userChangePassword);
 
 /**
  * @api {get} /users/email Check Email
@@ -312,13 +288,6 @@ router
  *   {
  *    "available": "true"
  *  }
- *
- * @apiErrorExample {json} Error-Response:
- *    HTTP/1.1 400 Bad Request
- *  {
- *   "message": "Invalid email"
- * }
- *
  */
 router.get('/email/:email', param('email').isEmail(), checkEmailExists);
 
@@ -338,13 +307,6 @@ router.get('/email/:email', param('email').isEmail(), checkEmailExists);
  *   {
  *    "available": "true"
  *  }
- *
- * @apiErrorExample {json} Error-Response:
- *    HTTP/1.1 400 Bad Request
- *  {
- *   "message": "Invalid username"
- * }
- *
  */
 router.get(
   '/username/:username',

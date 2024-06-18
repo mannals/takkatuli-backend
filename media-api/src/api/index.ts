@@ -1,6 +1,9 @@
 import express, {Request, Response} from 'express';
 
 import mediaRoute from './routes/mediaRoute';
+import categoryRoute from './routes/categoryRoute';
+import subcategoryRoute from './routes/subcategoryRoute';
+import profPicRoute from './routes/profilePicRoute';
 
 const router = express.Router();
 
@@ -10,6 +13,9 @@ router.get('/', (req: Request, res: Response) => {
   });
 });
 
-router.use('/media', mediaRoute);
+router.use('/posts', mediaRoute);
+router.use('/categories', categoryRoute);
+router.use('/subcategories', subcategoryRoute);
+router.use('/profile', profPicRoute);
 
 export default router;

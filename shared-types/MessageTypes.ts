@@ -1,37 +1,57 @@
-import { Thread, UserWithNoPassword } from "./DBTypes";
+import { Post, PostVote, ProfilePicture, UserWithNoPassword, UserWithProfilePicture } from './DBTypes';
 
 type MessageResponse = {
-    message: string;
+  message: string;
 };
 
 type ErrorResponse = MessageResponse & {
-    stack?: string;
+  stack?: string;
 };
 
 type MediaResponse = MessageResponse & {
-    media: Thread | Thread[];
+  media: Post | Post[] | ProfilePicture | ProfilePicture[] | PostVote | PostVote[];
 };
 
-// auth servevr
+// for auth server
 type LoginResponse = MessageResponse & {
-    token: string,
-    message: string,
-    user: UserWithNoPassword;
+  token: string;
+  message: string;
+  user: UserWithNoPassword;
 };
 
 type UserResponse = MessageResponse & {
-    user: UserWithNoPassword;
+  user: UserWithProfilePicture;
 };
 
 type UserDeleteResponse = MessageResponse & {
-    user: { user_id: number };
+  user: { user_id: number };
+};
+
+type AvailableResponse = Partial<MessageResponse> & {
+  available?: boolean;
+};
+
+type BooleanResponse = MessageResponse & {
+  success: boolean;
+};
+
+// for upload server
+type UploadResponse = MessageResponse & {
+  data: {
+    filename: string;
+    media_type: string;
+    filesize: number;
+  };
 };
 
 export type {
-    MessageResponse,
-    ErrorResponse,
-    MediaResponse,
-    LoginResponse,
-    UserResponse,
-    UserDeleteResponse,
+  MessageResponse,
+  ErrorResponse,
+  MediaResponse,
+  LoginResponse,
+  UploadResponse,
+  UserResponse,
+  UserDeleteResponse,
+  AvailableResponse,
+  BooleanResponse,
 };
