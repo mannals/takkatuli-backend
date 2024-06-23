@@ -1,5 +1,7 @@
 # Takkatuli-foorumi
 
+![Logo](takkatuli-logo-2.png)
+
 Takkatuli on kotitalouteen keskittyvä foorumi, jossa voi keskustella vaikkapa remontoinnista, ruuanlaitosta tai puutarhahommista: eri kategorioita sivulta löytyy viisi alakategorioineen.
 
 ## Sovelluksen toiminnallisuudet kuvakaappauksineen päivineen
@@ -75,9 +77,11 @@ Sovellus on toteutettu React Nativella.
 
 3. Lataa kännykällesi Expo Go -sovellus.
 
-4. Avaa front endin kansio IDE:ssäsi, ja suorita terminaalissa komento "npx expo start". Terminaaliin ilmestyy QR-koodi, jonka voit skannata joko Expo Golla jos olet Android-käyttäjä, tai kännykkäsi kameralla jos olet iPhone-käyttäjä.
+4. Back endin kansiossa
 
-5. profit
+5. Avaa front endin kansio IDE:ssäsi, ja suorita terminaalissa komento "npx expo start". Terminaaliin ilmestyy QR-koodi, jonka voit skannata joko Expo Golla jos olet Android-käyttäjä, tai kännykkäsi kameralla jos olet iPhone-käyttäjä.
+
+6. profit
 
 ## Back end
 
@@ -87,11 +91,17 @@ On tämä repositorio.
 
 ## Tietokanta 
 
-## Toiminnallisuudet
-
 ## Bugit ja ongelmat
 
-## Referenssit
+Tämä sovellus täytyi pistää purkkiin jossain vaiheessa enkä voinut jatkaa tätä loputtomiin. Jos minulla olisi kaikki aika käytettävissä tähän, tekisin tällaisia muutoksia:
 
-Olen käytännössä seurannut lähinnä kurssin materiaaleja ja Monialustaprojekti-kurssin ryhmätyöni koodia. 
+- geneeristen lankaikonien sijaan laittaisin alakategoriasivun postauslaatikoihin thumbnailin mahdollisesta aloituspostaukseen liitetystä kuvasta.
+- lisäisin toiminnallisuuden lisätä tiedostoja myös vastauksiin
+- mahdollistaisin myös vastauksiin vastaamisen
+- lisäisin administraattorinäkymän, jossa voisi mm. poistaa muiden käyttäjien postauksia, tai bannata käyttäjiä. Jossain kohtaa esim. käyttäjäprofiilissa olisi näppäin, josta voisi joko asettaa itsensä suoraan administraattoriksi, tai pyytää admin-oikeuksia.
+- tekisin chat-ominaisuuden.
+
+## Referenssit ja käytetyt kirjastot
+
+Referensseinä olen käyttänyt Hybridisovellukset-kurssin materiaaleja, Monikanavajulkaiseminen-kurssin ryhmätyöni koodia, Github Copilotia ja eri käyttämieni kirjastojen dokumentaatioita.
 
