@@ -27,6 +27,8 @@ app.get<{}, MessageResponse>('/', (req, res) => {
   });
 });
 
+app.use(express.static('public'));
+
 app.use('/api/v1', api);
 
 app.use(notFound);

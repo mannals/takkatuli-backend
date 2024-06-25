@@ -1,4 +1,4 @@
-import {PostVote} from '@sharedTypes/DBTypes';
+import {PostVote, Votes} from '@sharedTypes/DBTypes';
 import {NextFunction, Request, Response} from 'express';
 import {
   addVoteToPost,
@@ -8,6 +8,7 @@ import {
 } from '../models/voteModel';
 import {MessageResponse} from '@sharedTypes/MessageTypes';
 import CustomError from '../../classes/CustomError';
+import {fetchLikesDislikesByPostId} from '../models/mediaModel';
 
 /* GET MY VOTES */
 const myVotesGet = async (
@@ -37,6 +38,26 @@ const voteGet = async (
     res.json(vote);
   } catch (error) {
     next(error);
+  }
+};
+
+/* GET VOTES BY POST ID */
+const getVotesByPost = async (
+  req: Request<{id: string}>,
+  res: Response<Votes>,
+  next: NextFunction
+) => {
+  try {
+    const postId = parseInt(req.params.id);
+    const votes = await fetchLikesDislikesByPostId(postId);
+    if (votes === null) {
+      const error = new CustomError('No votes found', 404);
+      next(error);
+      return;
+    }
+    res.json(votes);
+  } catch (e) {
+    next(e);
   }
 };
 
@@ -87,4 +108,4 @@ const voteDelete = async (
   }
 };
 
-export {myVotesGet, voteGet, votePost, voteDelete};
+export {myVotesGet, voteGet, getVotesByPost, votePost, voteDelete};

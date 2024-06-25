@@ -7,6 +7,7 @@ import {getUserByUsername} from '../models/userModel';
 import {UserWithLevel, TokenContent} from '@sharedTypes/DBTypes';
 import {validationResult} from 'express-validator';
 
+/* LOGIN */
 const login = async (
   req: Request<{}, {}, {username: string; password: string}>,
   res: Response<LoginResponse>,

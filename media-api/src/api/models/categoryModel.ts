@@ -9,6 +9,12 @@ import promisePool from '../../lib/db';
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
 import {fetchLatestPostListed} from './mediaModel';
 
+/** 
+ * Fetches all categories from the database.
+ * 
+ * @returns {array} - an array of Category objects or null if no categories are found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchAllCategories = async (): Promise<Category[] | null> => {
   try {
     const sql = 'SELECT * FROM Categories;';
@@ -23,6 +29,13 @@ const fetchAllCategories = async (): Promise<Category[] | null> => {
   }
 };
 
+/**
+ * Fetches all categories with their subcategories 
+ * and a preview of the latest post from each subcategory.
+ * 
+ * @returns {array} - an array of CategoryWithSubcategories objects or null if no categories are found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchAllCatsWithSubcatsAndLatest = async (): Promise<
   CategoryWithSubcategories[] | null
 > => {
@@ -67,6 +80,13 @@ const fetchAllCatsWithSubcatsAndLatest = async (): Promise<
   }
 };
 
+/**
+ * Fetches the category of a post by its ID.
+ * 
+ * @param {number} postId - the ID of the post.
+ * @returns {object} - a Category object or null if no category is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchCategoryOfPost = async (
   postId: number
 ): Promise<Category | null> => {
@@ -87,6 +107,13 @@ const fetchCategoryOfPost = async (
   }
 };
 
+/** 
+ * Fetches all subcategories of a category by its ID.
+ * 
+ * @param {number} category_id - the ID of the category.
+ * @returns {array} - an array of Subcategory objects or null if no subcategories are found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchSubcategoriesByCategory = async (
   category_id: number
 ): Promise<Subcategory[] | null> => {
@@ -105,6 +132,13 @@ const fetchSubcategoriesByCategory = async (
   }
 };
 
+/**
+ * Fetches a subcategory by its ID.
+ * 
+ * @param {number} subcatId - the ID of the subcategory.
+ * @returns {object} - a Subcategory object or null if no subcategory is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchSubcategoryById = async (
   subcatId: number
 ): Promise<Subcategory | null> => {
@@ -123,6 +157,13 @@ const fetchSubcategoryById = async (
   }
 };
 
+/** 
+ * Fetches the subcategory of a post by its ID.
+ * 
+ * @param {number} postId - the ID of the post.
+ * @returns {object} - a Subcategory object or null if no subcategory is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchSubcategoryOfPost = async (
   postId: number
 ): Promise<Subcategory | null> => {
@@ -141,6 +182,13 @@ const fetchSubcategoryOfPost = async (
   }
 };
 
+/**
+ * Fetches the newest original post from a subcategory by its ID.
+ * 
+ * @param {number} subcatId - the ID of the subcategory.
+ * @returns {object} - a Post object or null if no post is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchNewestOriginalPostFromSubcategory = async (
   subcatId: number
 ): Promise<Post | null> => {
@@ -162,6 +210,14 @@ const fetchNewestOriginalPostFromSubcategory = async (
   }
 };
 
+/**
+ * Fetches the newest post from a subcategory by its ID.
+ * This includes replies to other posts.
+ * 
+ * @param {number} subcatId - the ID of the subcategory.
+ * @returns {object} - a Post object or null if no post is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchNewestPostFromSubcategory = async (
   subcatId: number
 ): Promise<Post | null> => {

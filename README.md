@@ -71,17 +71,15 @@ Voit myös tutkia muiden käyttäjien profiileja halutessasi. Pääset tarkastel
 
 Sovellus on toteutettu React Nativella.
 
-1. Pura tämä repositorio sekä front endin repositorio koneellesi: https://github.com/mannals/takkatuli-rn-client
+1. Pura front endin repositorio koneellesi: https://github.com/mannals/takkatuli-rn-client
 
 2. Avaa repositoriot koneellasi, ja muista 'npm install'
 
 3. Lataa kännykällesi Expo Go -sovellus.
 
-4. Back endin kansiossa
+4. Avaa front endin kansio IDE:ssäsi, ja suorita terminaalissa komento "npx expo start". Terminaaliin ilmestyy QR-koodi, jonka voit skannata joko Expo Golla jos olet Android-käyttäjä, tai kännykkäsi kameralla jos olet iPhone-käyttäjä.
 
-5. Avaa front endin kansio IDE:ssäsi, ja suorita terminaalissa komento "npx expo start". Terminaaliin ilmestyy QR-koodi, jonka voit skannata joko Expo Golla jos olet Android-käyttäjä, tai kännykkäsi kameralla jos olet iPhone-käyttäjä.
-
-6. profit
+5. profit
 
 ## Back end
 
@@ -93,7 +91,11 @@ On tämä repositorio.
 
 ## Bugit ja ongelmat
 
-Tämä sovellus täytyi pistää purkkiin jossain vaiheessa enkä voinut jatkaa tätä loputtomiin. Jos minulla olisi kaikki aika käytettävissä tähän, tekisin tällaisia muutoksia:
+Bugeja:
+
+- En saanut apidoc-sivua aukeamaan media-apissa tai upload-serverissä. Sivuille kuitenkin pääsee, jos tämän repositorion purkaa koneelleen ja avaa kunkin serverin public-kansion index.html-tiedoston selaimessa.
+
+Miten jatkaisin sovellustani:
 
 - geneeristen lankaikonien sijaan laittaisin alakategoriasivun postauslaatikoihin thumbnailin mahdollisesta aloituspostaukseen liitetystä kuvasta.
 - lisäisin toiminnallisuuden lisätä tiedostoja myös vastauksiin
@@ -103,5 +105,5 @@ Tämä sovellus täytyi pistää purkkiin jossain vaiheessa enkä voinut jatkaa 
 
 ## Referenssit ja käytetyt kirjastot
 
-Referensseinä olen käyttänyt Hybridisovellukset-kurssin materiaaleja, Monikanavajulkaiseminen-kurssin ryhmätyöni koodia, Github Copilotia ja eri käyttämieni kirjastojen dokumentaatioita.
+Referensseinä olen käyttänyt Hybridisovellukset-kurssin materiaaleja, Monialustaprojekti-kurssin ryhmätyöni koodia, Github Copilotia ja eri käyttämieni kirjastojen dokumentaatioita.
 

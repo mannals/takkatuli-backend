@@ -97,14 +97,14 @@ router.post(
  *
  * @apiParam (Request body) {Object} user User's information.
  * @apiParam (Request body) {String} [user.username] Username of the User.
- * @apiParam (Request body) {String} [user.password] Password of the User.
  * @apiParam (Request body) {String} [user.email] Email of the User.
+ * @apiParam (Request body) {String} [user.bio_text] Bio text of the User.
  *
  * @apiParamExample {json} Request-Example:
  *     {
  *         "username": "UpdatedUser",
  *         "password": "updatedPassword",
- *         "email": "updateduser@example.com"
+ *         "bio_text": "This is a bio text"
  *     }
  *
  * @apiSuccess {String} message Success message.
@@ -112,8 +112,12 @@ router.post(
  * @apiSuccess {Number} user.user_id User's unique ID.
  * @apiSuccess {String} user.username User's username.
  * @apiSuccess {String} user.email User's email.
+ * @apiSuccess {String} user.bio_text User's bio text.
  * @apiSuccess {Date} user.created_at Timestamp when the user was created.
  * @apiSuccess {String} user.level_name User's level (Admin | User | Guest).
+ * @apiSuccess {String} user.filename Profile picture's filename.
+ * @apiSuccess {Number} user.filesize Profile picture's filesize.
+ * @apiSuccess {String} user.media_type Profile picture's media type.
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -123,8 +127,12 @@ router.post(
  *         "user_id": 5,
  *         "username": "testuser",
  *         "email": "ile@mail.fi",
+ *         "bio_text": "This is a bio text",
  *         "created_at": "2024-01-01T19:24:37.000Z",
  *         "level_name": "User"
+ *         "filename": "profilepic.jpg",
+ *         "filesize": 12345,
+ *         "media_type": "image/jpeg"
  *       }
  *     }
  */
@@ -132,8 +140,8 @@ router.put(
   '/',
   authenticate,
   body('username').optional().isString().escape().trim().isLength({min: 3}),
-  body('password').optional().isString().escape().trim().isLength({min: 5}),
   body('email').optional().isEmail(),
+  body('bio_text').optional().isString(),
   userPut,
 );
 

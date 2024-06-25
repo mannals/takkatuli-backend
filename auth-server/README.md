@@ -1,1 +1,1 @@
-# Takkatuli.net autentikointiserveri
+# Takkatuli autentikointiserveri

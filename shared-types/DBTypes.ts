@@ -142,7 +142,6 @@ export type MakePost = {
   subcategory_id: number;
   title: string;
   text_content: string;
-  file: File | null;
 };
 
 export type EditedPost = {

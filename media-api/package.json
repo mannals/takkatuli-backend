@@ -4,15 +4,18 @@
   "description": "'express.js API with Typescript'",
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "npm run build && node dist/media-api/src/index.js",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
+    "postbuild": "npm run apidoc",
     "lint": "eslint --fix src test",
-    "test": "jest"
+    "test": "jest --detectOpenHandles --forceExit",
+    "apidoc": "apidoc -c apidoc.json -o public/"
   },
-  "author": "",
+  "author": "mannals",
   "license": "MIT",
   "dependencies": {
+    "apidoc": "^1.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",

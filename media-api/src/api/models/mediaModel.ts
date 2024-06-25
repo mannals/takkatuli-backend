@@ -26,8 +26,8 @@ import {MessageResponse} from '@sharedTypes/MessageTypes';
 import {fetchNewestPostFromSubcategory} from './categoryModel';
 
 /**
- * Get all posts from the database
- * whether they are original posts or replies
+ * Get all posts from the database with all information.
+ * This function fetches all posts, including replies to other posts.
  *
  * @returns {array} - array of media items
  * @throws {Error} - error if database query fails
@@ -54,8 +54,7 @@ const fetchAllPosts = async (): Promise<Post[] | null> => {
 };
 
 /**
- * Get all posts from database
- * that are not replies to other posts
+ * Get all posts from database that are not replies to other posts
  *
  * @returns {array} - array of media items
  * @throws {Error} - error if database query fails
@@ -82,10 +81,13 @@ const fetchAllOriginalPosts = async (): Promise<Post[] | null> => {
 };
 
 /**
- * Get all original posts as a preview from a subcategory with the subcategory ID
+ * Get all original posts as a preview for subcategory listing 
+ * with the subcategory ID.
+ * This function fetches the relevant data for a PostPreview type.
  *
  * @param {number} subcat_id - ID of subcategory
  * @returns {array} - array of posts
+ * @throws {Error} - error if database query fails
  */
 const fetchPostsBySubcat = async (subcat_id: number) => {
   try {
@@ -195,7 +197,8 @@ const fetchPostsBySubcat = async (subcat_id: number) => {
  * Get post by id from the database
  *
  * @param {number} id - id of the media item
- * @returns {object} - object containing all information about the media item
+ * @returns {object} - PostWithAll object containing all information about the media item,
+ * including owner's username, subcategory name, profile picture, and votes
  * @throws {Error} - error if database query fails
  */
 
@@ -290,6 +293,15 @@ const fetchPostById = async (id: number): Promise<PostWithAll | null> => {
   }
 };
 
+/**
+ * Get all likes and dislikes for a post.
+ * This function fetches the relevant data for a Votes type, which contains
+ * arrays of PostVote objects for likes and dislikes.
+ *
+ * @param {number} postId - id of the post
+ * @returns {object} - object containing all likes and dislikes for the post.
+ * @throws {Error} - error if database query fails
+ */
 const fetchLikesDislikesByPostId = async (postId: number): Promise<Votes> => {
   try {
     console.log('fetching votes');
@@ -326,7 +338,9 @@ const fetchLikesDislikesByPostId = async (postId: number): Promise<Votes> => {
 };
 
 /**
- * Get replies to post with post id from database
+ * Get replies to post with post id from database.
+ * This function fetches the relevant data for a PostWithAll type.
+ * It includes the owner's username, subcategory name, profile picture, and votes.
  *
  * @param {number} id - id of the media item
  * @returns {object} - object containing all information about the media item
@@ -415,9 +429,18 @@ const fetchRepliesById = async (id: number): Promise<PostWithAll[] | null> => {
   }
 };
 
-const fetchPostOwner = async (postId: Number): Promise<User | null> => {
+/**
+ * Get post owner by post id from database
+ * This function fetches the relevant data for a User type.
+ * It includes the user_id and username.
+ * 
+ * @param {number} postId - id of the post
+ * @returns {object} - object containing the username and ID of the user
+ * @throws {Error} - error if database query fails 
+ */
+const fetchPostOwner = async (postId: Number): Promise<Pick<User, 'user_id' | 'username'> | null> => {
   try {
-    const [rows] = await promisePool.execute<ResultSetHeader & User[]>(
+    const [rows] = await promisePool.execute<ResultSetHeader & Pick<User, 'user_id' | 'username'>[]>(
       'SELECT user_id, username FROM Users WHERE user_id = (SELECT user_id FROM Posts WHERE post_id = ?)',
       [postId]
     );
@@ -432,6 +455,16 @@ const fetchPostOwner = async (postId: Number): Promise<User | null> => {
   }
 };
 
+/**
+ * Get preview of latest post in subcategory listing from database
+ * This function fetches the relevant data for a PostInSubcatListing type.
+ * It includes the username of the post owner, the creation date of the post,
+ * and the original post ID and title.
+ *
+ * @param {number} subcatId - id of the subcategory
+ * @returns {object} - object containing the username, creation date, and original post ID and title
+ * @throws {Error} - error if database query fails
+ */
 const fetchLatestPostListed = async (
   subcatId: number
 ): Promise<PostInSubcatListing | null> => {
@@ -511,6 +544,13 @@ const fetchLatestPostListed = async (
   }
 };
 
+/**
+ * Check if post is a reply to another post
+ * 
+ * @param {number} postId - id of the post
+ * @returns {object} - object containing the reply_to value of the post
+ * @throws {Error} - error if database query fails
+ */
 const checkIfReply = async (
   postId: number
 ): Promise<Pick<Post, 'reply_to'> | MessageResponse | null> => {
@@ -533,7 +573,10 @@ const checkIfReply = async (
 };
 
 /**
- * Add new media item to database
+ * Add new media item to database.
+ * This function is used for adding original posts.
+ * Files are uploaded to the upload server and the file data is saved to the database.
+ * It is optional to add a file to the post.
  *
  * @param {object} media - object containing all information about the new media item
  * @returns {object} - object containing id of the inserted media item in db
@@ -615,6 +658,16 @@ const createNewPost = async (
   }
 };
 
+/**
+ * Add new reply to database.
+ * This function is used for adding replies to original posts.
+ * For replies, the required fields are subcategory_id, text_content, and reply_to.
+ * You can't add a file or a title to a reply.
+ * 
+ * @param {object} post - object containing all information about the new reply
+ * @returns {object} - object containing id of the inserted reply in db
+ * @throws {Error} - error if database query fails
+ */
 const makeNewReply = async (
   post: NewPostWithoutFile,
   userId: number
@@ -641,11 +694,14 @@ const makeNewReply = async (
 };
 
 /**
- * Update media item in database
+ * Update post in database.
+ * This function is used for editing posts.
+ * You can edit the title, text content, or file of a post.
  *
- * @param {object} media - EditedMedia object
- * @param {number} id - id of the media item
- * @returns {object} - object containing id of the updated media item in db
+ * @param {object} media - EditedPost or EditPostWithFile object containing updated information
+ * @param {number} userId - id of the user
+ * @param {number} postId - id of the post
+ * @returns {object} - object containing id of the updated post in db
  * @throws {Error} - error if database query fails
  */
 
@@ -678,10 +734,13 @@ const putMedia = async (
 };
 
 /**
- * Delete media item from database
+ * Delete post from database.
+ * This function is used for deleting posts.
+ * You can only delete posts that you own.
+ * If the post has a file, it is also deleted from the upload server.
  *
- * @param {number} id - id of the media item
- * @returns {object} - object containing id of the deleted media item in db
+ * @param {number} id - id of the post
+ * @returns {object} - object containing id of the deleted post in db
  * @throws {Error} - error if database query fails
  */
 
@@ -696,11 +755,6 @@ const deletePost = async (
 
   if (!media) {
     return {message: 'Post not found'};
-  }
-
-  // if admin add user_id from media object to user object from token content
-  if (user.level_name === 'Admin') {
-    user.user_id = media.user_id;
   }
 
   // remove environment variable UPLOAD_URL from filename

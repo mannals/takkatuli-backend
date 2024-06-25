@@ -9,6 +9,13 @@ import {
 } from '@sharedTypes/DBTypes';
 import {UserDeleteResponse} from '@sharedTypes/MessageTypes';
 
+/**
+ * Fetches a user by user_id.
+ *
+ * @param {number} id - The user_id of the user to be fetched.
+ * @returns {object} - A UserWithNoPassword object or null if no user is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const getUserById = async (id: number): Promise<UserWithNoPassword | null> => {
   try {
     const [rows] = await promisePool.execute<
@@ -41,6 +48,14 @@ const getUserById = async (id: number): Promise<UserWithNoPassword | null> => {
   }
 };
 
+/**
+ * Fetches a user by user_id and includes the user's profile picture.
+ * Relevant to the front end.
+ *
+ * @param {number} id - The user_id of the user to be fetched.
+ * @returns {object} - A UserWithProfilePicture object or null if no user is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const getUserWithProfilePicture = async (
   id: number,
 ): Promise<UserWithProfilePicture | null> => {
@@ -87,6 +102,12 @@ const getUserWithProfilePicture = async (
   }
 };
 
+/**
+ * Fetches all users.
+ *
+ * @returns {object} - An array of UserWithNoPassword objects or null if no users are found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const getAllUsers = async (): Promise<UserWithNoPassword[] | null> => {
   try {
     const [rows] = await promisePool.execute<
@@ -116,6 +137,13 @@ const getAllUsers = async (): Promise<UserWithNoPassword[] | null> => {
   }
 };
 
+/**
+ * Fetches a user by email.
+ *
+ * @param {string} email - The email of the user to be fetched.
+ * @returns {object} - A UserWithLevel object or null if no user is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const getUserByEmail = async (email: string): Promise<UserWithLevel | null> => {
   try {
     const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
@@ -144,6 +172,13 @@ const getUserByEmail = async (email: string): Promise<UserWithLevel | null> => {
   }
 };
 
+/**
+ * Fetches a user by username.
+ *
+ * @param {string} username - The username of the user to be fetched.
+ * @returns {object} - A UserWithLevel object or null if no user is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const getUserByUsername = async (
   username: string,
 ): Promise<UserWithLevel | null> => {
@@ -174,6 +209,14 @@ const getUserByUsername = async (
   }
 };
 
+/**
+ * Fetches a user's password by user_id.
+ * Relevant for password change, where the user's password is needed to verify the new password.
+ *
+ * @param {string} user_id - The user_id of the user whose password is to be fetched.
+ * @returns {string} - The user's password or null if no user is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const getUserPassword = async (user_id: string): Promise<string | null> => {
   try {
     const [rows] = await promisePool.execute<RowDataPacket[] & User[]>(
@@ -195,6 +238,14 @@ const getUserPassword = async (user_id: string): Promise<string | null> => {
   }
 };
 
+/**
+ * Changes a user's password.
+ *
+ * @param {string} user_id - The user_id of the user whose password is to be changed.
+ * @param {string} password - The new password.
+ * @returns {boolean} - True if the password was changed, false if no user was found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const changeUserPassword = async (
   user_id: string,
   password: string,
@@ -215,6 +266,14 @@ const changeUserPassword = async (
   }
 };
 
+/**
+ * Creates a new user.
+ * Requires a user object with a username, password, and email.
+ *
+ * @param {object} user - The user object to be created.
+ * @returns {object} - A UserWithProfilePicture object or null if the user was not created.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const createUser = async (
   user: Pick<User, 'username' | 'password' | 'email'>,
 ): Promise<UserWithProfilePicture | null> => {
@@ -239,6 +298,17 @@ const createUser = async (
   }
 };
 
+/**
+ * Modifies a user.
+ * Requires a user object with the fields to be modified.
+ * The updatable fields are username, email, and bio_text.
+ * The edited_at field is automatically updated.
+ *
+ * @param {object} user - The user object to be modified.
+ * @param {number} id - The user_id of the user to be modified.
+ * @returns {object} - A UserWithProfilePicture object or null if the user was not modified.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const modifyUser = async (
   user: UpdateUser,
   id: number,
@@ -269,6 +339,13 @@ const modifyUser = async (
   }
 };
 
+/**
+ * Deletes a user.
+ *
+ * @param {number} id - The user_id of the user to be deleted.
+ * @returns {object} - A UserDeleteResponse object or null if the user was not deleted.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const deleteUser = async (id: number): Promise<UserDeleteResponse | null> => {
   const connection = await promisePool.getConnection();
   try {

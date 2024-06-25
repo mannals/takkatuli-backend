@@ -1,0 +1,13 @@
+{
+  "name": "Takkatuli.net, Upload server",
+  "version": "1.0.0",
+  "description": "Hybridisovellukset k2024 yksilöprojekti, Anna Malassu",
+  "title": "Upload server",
+  "url": "/api/v1",
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
+  },
+  "exclude": ["node_modules/", "public/"],
+  "files": ["src/**/*.ts"]
+}

@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "npm run build && node dist/auth-server/src/index.js",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
     "postbuild": "npm run apidoc",
@@ -12,7 +12,7 @@
     "test": "jest --detectOpenHandles --forceExit",
     "apidoc": "apidoc -c apidoc.json -o public/"
   },
-  "author": "",
+  "author": "mannals",
   "license": "MIT",
   "dependencies": {
     "apidoc": "^1.2.0",

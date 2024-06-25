@@ -2,6 +2,13 @@ import {FileData, ProfilePicture} from '@sharedTypes/DBTypes';
 import promisePool from '../../lib/db';
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
 
+/**
+ * Fetches a profile picture from the database.
+ * 
+ * @param {number} user_id - The user_id of the user whose profile picture is to be fetched.
+ * @returns {object} - A ProfilePicture object or null if no profile picture is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchProfilePicture = async (
   user_id: number
 ): Promise<ProfilePicture | null> => {
@@ -18,6 +25,14 @@ const fetchProfilePicture = async (
   }
 };
 
+/**
+ * Fetches a profile picture from the database with the image path.
+ * Relevant for the frontend.
+ * 
+ * @param {number} user_id - The user_id of the user whose profile picture is to be fetched.
+ * @returns {object} - A ProfilePicture object or null if no profile picture is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const fetchProfilePictureWithImage = async (
   user_id: number
 ): Promise<ProfilePicture | null> => {
@@ -40,6 +55,16 @@ const fetchProfilePictureWithImage = async (
   }
 };
 
+/**
+ * Changes the profile picture of a user.
+ * If the user already has a profile picture, the existing one will be updated.
+ * If the user does not have a profile picture, a new one will be created.
+ * 
+ * @param {object} fileData - The file data of the new profile picture.
+ * @param {number} user_id - The user_id of the user whose profile picture is to be changed.
+ * @returns {object} - A ProfilePicture object.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const changeProfilePicture = async (
   fileData: FileData,
   user_id: number

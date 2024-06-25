@@ -1,5 +1,5 @@
 import {Request, Response, NextFunction} from 'express';
-import {Category, Subcategory} from '@sharedTypes/DBTypes';
+import {Category, CategoryWithSubcategories, Subcategory} from '@sharedTypes/DBTypes';
 import {
   fetchAllCategories,
   fetchAllCatsWithSubcatsAndLatest,
@@ -30,7 +30,7 @@ const getAllCategories = async (
 /* GET ALL CATEGORIES WITH THEIR CORRESPONDING SUBCATEGORIES AND PREVIEWS OF LATEST POST */
 const getCatsWithSubcatsAndLatest = async (
   req: Request,
-  res: Response<Category[]>,
+  res: Response<CategoryWithSubcategories[]>,
   next: NextFunction
 ) => {
   try {

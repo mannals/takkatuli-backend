@@ -5,6 +5,7 @@ import fs from 'fs';
 import {FileInfo, TokenContent} from '@sharedTypes/DBTypes';
 import {MessageResponse} from '@sharedTypes/MessageTypes';
 
+/* UPLOADS A FILE */
 const uploadFile = async (
   req: Request,
   res: Response<{}, {user: TokenContent}>,
@@ -54,6 +55,7 @@ const uploadFile = async (
   }
 };
 
+/* DELETES A FILE */
 const deleteFile = async (
   req: Request<{filename: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,

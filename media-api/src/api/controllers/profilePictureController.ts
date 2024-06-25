@@ -38,7 +38,7 @@ const getProfilePictureWithImage = async (
   }
 };
 
-/* GET PROFILE PICTURE WITH WORKING IMAGE URL BY USER ID */
+/* GET OTHER USER'S PROFILE PICTURE WITH WORKING IMAGE URL BY USER ID */
 const getProfPicImageById = async (
   req: Request<{id: string}>,
   res: Response<ProfilePicture | null>,

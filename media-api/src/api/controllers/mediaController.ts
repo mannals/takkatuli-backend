@@ -10,7 +10,6 @@ import {
   createNewPost,
   fetchRepliesById,
   makeNewReply,
-  fetchLikesDislikesByPostId,
   putMedia,
 } from '../models/mediaModel';
 import CustomError from '../../classes/CustomError';
@@ -25,12 +24,12 @@ import {
   PostWithAll,
   TokenContent,
   User,
-  Votes,
   EditedPost,
   EditPostWithFile,
+  UserWithNoPassword,
 } from '@sharedTypes/DBTypes';
 
-/* GET ALL MEDIA */
+/* GET ALL POSTS */
 const getAllPosts = async (
   req: Request,
   res: Response<Post[]>,
@@ -111,7 +110,7 @@ const getPostsFromSubcategory = async (
 /* GET POST OWNER BY POST ID */
 const getPostOwner = async (
   req: Request<{id: string}>,
-  res: Response<User>,
+  res: Response<Pick<User, 'user_id' | 'username'>>,
   next: NextFunction
 ) => {
   try {
@@ -123,26 +122,6 @@ const getPostOwner = async (
       return;
     }
     res.json(postOwner);
-  } catch (e) {
-    next(e);
-  }
-};
-
-/* GET VOTES BY POST ID */
-const getVotesByPost = async (
-  req: Request<{id: string}>,
-  res: Response<Votes>,
-  next: NextFunction
-) => {
-  try {
-    const postId = parseInt(req.params.id);
-    const votes = await fetchLikesDislikesByPostId(postId);
-    if (votes === null) {
-      const error = new CustomError('No votes found', 404);
-      next(error);
-      return;
-    }
-    res.json(votes);
   } catch (e) {
     next(e);
   }
@@ -170,6 +149,7 @@ const getRepliesByPost = async (
 };
 
 /* GET PREVIEW OF LATEST POST IN SUBCATEGORY */
+/* This is used in the subcategory listing page */
 const getSubcatLatestPreview = async (
   req: Request<{id: string}>,
   res: Response<PostInSubcatListing>,
@@ -189,7 +169,7 @@ const getSubcatLatestPreview = async (
   }
 };
 
-/* CREATE NEW MEDIA */
+/* CREATE NEW POST */
 const makePost = async (
   req: Request<{}, {}, NewPostWithFile | NewPostWithoutFile>,
   res: Response<MediaResponse>,
@@ -212,6 +192,9 @@ const makePost = async (
 };
 
 /* CREATE NEW REPLY */
+/* This is a separate function from makePost because replies are a special case */
+/* They need to be linked to the original post */
+/* Only the text content is required */
 const makeReply = async (
   req: Request<{id: string}, {}, MakePost>,
   res: Response<MediaResponse>,
@@ -232,6 +215,7 @@ const makeReply = async (
 };
 
 /* EDIT MEDIA */
+/* You can only edit the title, text content or file of a post */
 const putPost = async (
   req: Request<{id: string}, {}, EditedPost | EditPostWithFile>,
   res: Response<MediaResponse>,
@@ -277,7 +261,6 @@ export {
   getAllPosts,
   getOriginalPosts,
   getPost,
-  getVotesByPost,
   getPostsFromSubcategory,
   getRepliesByPost,
   getSubcatLatestPreview,

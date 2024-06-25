@@ -3,6 +3,13 @@ import promisePool from '../../lib/db';
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
 import {MessageResponse} from '@sharedTypes/MessageTypes';
 
+/** 
+ * Fetches all votes made by a user.
+ * 
+ * @param {number} userId - The user_id of the user whose votes are to be fetched.
+ * @returns {array} - an array of PostVote objects or null if no votes are found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const getMyVotes = async (userId: number): Promise<PostVote[] | null> => {
   try {
     const [rows] = await promisePool.execute<RowDataPacket[] & PostVote[]>(
@@ -19,6 +26,15 @@ const getMyVotes = async (userId: number): Promise<PostVote[] | null> => {
   }
 };
 
+/**
+ * Fetches a vote made by a user on a post.
+ * If no vote is found, a message is returned.
+ * 
+ * @param {number} userId - The user_id of the user whose vote is to be fetched.
+ * @param {number} postId - The post_id of the post whose vote is to be fetched.
+ * @returns {object} - A PostVote object or a MessageResponse object if no vote is found.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const getMyVoteFromPost = async (
   userId: number,
   postId: number
@@ -38,6 +54,17 @@ const getMyVoteFromPost = async (
   }
 };
 
+/** 
+ * Adds a vote to a post.
+ * If the user has already voted, the vote is updated.
+ * If the user has already voted the same way, the vote is removed.
+ * 
+ * @param {number} userId - The user_id of the user who is voting.
+ * @param {number} postId - The post_id of the post being voted on.
+ * @param {boolean} approve - Whether the user approves or disapproves of the post.
+ * @returns {object} - A PostVote object or a MessageResponse object if the vote fails.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const addVoteToPost = async (
   userId: number,
   postId: number,
@@ -96,6 +123,14 @@ const addVoteToPost = async (
   }
 };
 
+/**
+ * Removes a vote from a post.
+ * 
+ * @param {number} userId - The user_id of the user who is removing their vote.
+ * @param {number} postId - The post_id of the post whose vote is being removed.
+ * @returns {object} - A MessageResponse object.
+ * @throws {Error} - Throws an error if the SQL query fails.
+ */
 const removeVoteFromPost = async (
   userId: number,
   postId: number

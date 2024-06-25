@@ -159,9 +159,6 @@ const userPut = async (
     const userFromToken = res.locals.user;
 
     const user = req.body;
-    if (user.password) {
-      user.password = await bcrypt.hash(user.password, salt);
-    }
 
     console.log('userPut', userFromToken, user);
 
