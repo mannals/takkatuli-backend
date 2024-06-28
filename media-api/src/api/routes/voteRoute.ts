@@ -5,7 +5,7 @@ import {authenticate} from '../../middlewares';
 const voteRoute = express.Router();
 
 /**
- * @api {get} /api/posts/votes Get all votes of a user
+ * @api {get} /api/votes Get all votes of a user
  * @apiName GetMyVotes
  * @apiGroup Votes
  * 
@@ -39,10 +39,10 @@ const voteRoute = express.Router();
  *   }
  * ]
  */
-voteRoute.route('/votes').get(myVotesGet);
+voteRoute.route('/').get(myVotesGet);
 
 /**
- * @api {get} /api/posts/:id/vote Get my vote by post ID
+ * @api {get} /api/votes/:id Get my vote by post ID
  * @apiName GetMyVote
  * @apiGroup Votes
  * 
@@ -73,10 +73,10 @@ voteRoute.route('/votes').get(myVotesGet);
  *    "message": "No vote found"
  *  }
  */
-voteRoute.route('/:id/vote').get(authenticate, voteGet);
+voteRoute.route('/:id').get(authenticate, voteGet);
 
 /**
- * @api {post} /api/posts/:id/vote Add vote to post
+ * @api {post} /api/votes/:id Add vote to post
  * @apiName AddVote
  * @apiGroup Votes
  * 
@@ -105,10 +105,10 @@ voteRoute.route('/:id/vote').get(authenticate, voteGet);
  *            }
  *  }
  */
-voteRoute.route('/:id/vote').post(authenticate, votePost);
+voteRoute.route('/:id').post(authenticate, votePost);
 
 /**
- * @api {delete} /api/posts/:id/vote Delete vote from post
+ * @api {delete} /api/votes/:id Delete vote from post
  * @apiName DeleteVote
  * @apiGroup Votes
  * 
@@ -124,10 +124,10 @@ voteRoute.route('/:id/vote').post(authenticate, votePost);
  *     "message": "Vote deleted"
  *   }
  */
-voteRoute.route('/:id/vote').delete(authenticate, voteDelete);
+voteRoute.route('/:id').delete(authenticate, voteDelete);
 
 /**
- * @api {get} /api/posts/:id/votes Get votes by post ID
+ * @api {get} /api/votes/:id/all Get votes by post ID
  * @apiName GetVotesByPost
  * @apiGroup Votes
  * 
@@ -185,6 +185,6 @@ voteRoute.route('/:id/vote').delete(authenticate, voteDelete);
  *  }
  * 
  */
-voteRoute.route('/:id/votes').get(getVotesByPost);
+voteRoute.route('/:id/all').get(getVotesByPost);
 
 export default voteRoute;

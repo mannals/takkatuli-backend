@@ -1,10 +1,7 @@
-/* eslint-disable node/no-unpublished-import */
 import {
   EditPostWithFile,
   EditedPost,
-  PostVote,
   ProfilePicture,
-  Votes,
 } from './../../../../shared-types/DBTypes';
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
 import {
@@ -24,6 +21,7 @@ import promisePool from '../../lib/db';
 import {fetchData} from '../../lib/functions';
 import {MessageResponse} from '@sharedTypes/MessageTypes';
 import {fetchNewestPostFromSubcategory} from './categoryModel';
+import {fetchVotesByPostId} from './voteModel';
 
 /**
  * Get all posts from the database with all information.
@@ -234,7 +232,7 @@ const fetchPostById = async (id: number): Promise<PostWithAll | null> => {
       console.log('no profile picture found');
     }
 
-    const votes = await fetchLikesDislikesByPostId(id);
+    const votes = await fetchVotesByPostId(id);
 
     const sql3 = 'SELECT username FROM Users WHERE user_id = ?';
     const [owner] = await promisePool.execute<
@@ -294,50 +292,6 @@ const fetchPostById = async (id: number): Promise<PostWithAll | null> => {
 };
 
 /**
- * Get all likes and dislikes for a post.
- * This function fetches the relevant data for a Votes type, which contains
- * arrays of PostVote objects for likes and dislikes.
- *
- * @param {number} postId - id of the post
- * @returns {object} - object containing all likes and dislikes for the post.
- * @throws {Error} - error if database query fails
- */
-const fetchLikesDislikesByPostId = async (postId: number): Promise<Votes> => {
-  try {
-    console.log('fetching votes');
-    const votes: Votes = {
-      likes: [],
-      dislikes: [],
-    };
-    const [likes] = await promisePool.execute<RowDataPacket[] & PostVote[]>(
-      'SELECT * FROM PostVotes WHERE post_id = ? AND approve = 1',
-      [postId]
-    );
-    console.log('likes', likes);
-    if (likes && likes.length > 0) {
-      votes.likes = likes;
-    } else {
-      votes.likes = [];
-    }
-
-    const [dislikes] = await promisePool.execute<RowDataPacket[] & PostVote[]>(
-      'SELECT * FROM PostVotes WHERE post_id = ? AND approve = 0',
-      [postId]
-    );
-    console.log('dislikes', dislikes);
-    if (dislikes && dislikes.length > 0) {
-      votes.dislikes = dislikes;
-    } else {
-      votes.dislikes = [];
-    }
-    return votes;
-  } catch (e) {
-    console.error('fetchLikesDislikesByPostId error', (e as Error).message);
-    throw new Error((e as Error).message);
-  }
-};
-
-/**
  * Get replies to post with post id from database.
  * This function fetches the relevant data for a PostWithAll type.
  * It includes the owner's username, subcategory name, profile picture, and votes.
@@ -376,7 +330,7 @@ const fetchRepliesById = async (id: number): Promise<PostWithAll[] | null> => {
           Pick<ProfilePicture, 'filename' | 'filesize' | 'media_type'>[]
       >(sql2, [uploadPath, userId]);
 
-      const votes = await fetchLikesDislikesByPostId(row.post_id);
+      const votes = await fetchVotesByPostId(row.post_id);
 
       const [owner] = await promisePool.execute<
         RowDataPacket[] & Pick<User, 'username'>[]
@@ -828,7 +782,6 @@ export {
   fetchPostsBySubcat,
   fetchPostById,
   fetchRepliesById,
-  fetchLikesDislikesByPostId,
   fetchPostOwner,
   fetchLatestPostListed,
   checkIfReply,

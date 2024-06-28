@@ -12,6 +12,7 @@ const uploadFile = async (
   next: NextFunction
 ) => {
   try {
+    console.log('uploadFile', req.file);
     if (!req.file) {
       const err = new CustomError('file not valid', 400);
       next(err);
@@ -28,6 +29,10 @@ const uploadFile = async (
       fileInfo,
       process.env.JWT_SECRET as string
     )}.${req.file.originalname.split('.').pop()}`;
+
+    console.log('filename', filename);
+
+    console.log('file destination', req.file.destination);
 
     // change file name of req.file.path to filename
     fs.renameSync(req.file.path, `${req.file.destination}/${filename}`);

@@ -2,13 +2,13 @@ import {PostVote, Votes} from '@sharedTypes/DBTypes';
 import {NextFunction, Request, Response} from 'express';
 import {
   addVoteToPost,
+  fetchVotesByPostId,
   getMyVoteFromPost,
   getMyVotes,
   removeVoteFromPost,
 } from '../models/voteModel';
 import {MessageResponse} from '@sharedTypes/MessageTypes';
 import CustomError from '../../classes/CustomError';
-import {fetchLikesDislikesByPostId} from '../models/mediaModel';
 
 /* GET MY VOTES */
 const myVotesGet = async (
@@ -49,7 +49,7 @@ const getVotesByPost = async (
 ) => {
   try {
     const postId = parseInt(req.params.id);
-    const votes = await fetchLikesDislikesByPostId(postId);
+    const votes = await fetchVotesByPostId(postId);
     if (votes === null) {
       const error = new CustomError('No votes found', 404);
       next(error);

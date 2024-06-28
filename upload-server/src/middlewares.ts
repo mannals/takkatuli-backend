@@ -59,18 +59,34 @@ const authenticate = async (
   }
 };
 
+const logFile = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.file) {
+    console.log('Uploaded file info:', req.file);
+  } else {
+    console.log('No file was uploaded.');
+  }
+  next(); // Proceed to the next middleware
+};
+
+const uploadsBasePath = path.join(__dirname, '..', '..', '..');
+
 const makeThumbnail = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
+    console.log('makeThumbnail', req.file);
     if (!req.file) {
       next(new CustomError('File not uploaded', 500));
       return;
     }
 
-    const src = path.join(__dirname, '..', 'uploads', req.file.filename);
+    const src = path.join(uploadsBasePath, 'uploads', req.file.filename);
     console.log(src);
 
     if (!req.file.mimetype.includes('video')) {
@@ -85,8 +101,9 @@ const makeThumbnail = async (
     await getVideoThumbnail(src);
     next();
   } catch (error) {
-    next(new CustomError('Thumbnail not created', 500));
+    console.log((error as Error).message);
+    next(new CustomError("Thumbnail not created", 500));
   }
 };
 
-export {notFound, errorHandler, authenticate, makeThumbnail};
+export {notFound, errorHandler, authenticate, logFile, makeThumbnail};

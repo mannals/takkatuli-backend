@@ -1,4 +1,4 @@
-import {PostVote} from '@sharedTypes/DBTypes';
+import {PostVote, Votes} from '@sharedTypes/DBTypes';
 import promisePool from '../../lib/db';
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
 import {MessageResponse} from '@sharedTypes/MessageTypes';
@@ -124,6 +124,50 @@ const addVoteToPost = async (
 };
 
 /**
+ * Get all likes and dislikes for a post.
+ * This function fetches the relevant data for a Votes type, which contains
+ * arrays of PostVote objects for likes and dislikes.
+ *
+ * @param {number} postId - id of the post
+ * @returns {object} - object containing all likes and dislikes for the post.
+ * @throws {Error} - error if database query fails
+ */
+const fetchVotesByPostId = async (postId: number): Promise<Votes> => {
+  try {
+    console.log('fetching votes');
+    const votes: Votes = {
+      likes: [],
+      dislikes: [],
+    };
+    const [likes] = await promisePool.execute<RowDataPacket[] & PostVote[]>(
+      'SELECT * FROM PostVotes WHERE post_id = ? AND approve = 1',
+      [postId]
+    );
+    console.log('likes', likes);
+    if (likes && likes.length > 0) {
+      votes.likes = likes;
+    } else {
+      votes.likes = [];
+    }
+
+    const [dislikes] = await promisePool.execute<RowDataPacket[] & PostVote[]>(
+      'SELECT * FROM PostVotes WHERE post_id = ? AND approve = 0',
+      [postId]
+    );
+    console.log('dislikes', dislikes);
+    if (dislikes && dislikes.length > 0) {
+      votes.dislikes = dislikes;
+    } else {
+      votes.dislikes = [];
+    }
+    return votes;
+  } catch (e) {
+    console.error('fetchLikesDislikesByPostId error', (e as Error).message);
+    throw new Error((e as Error).message);
+  }
+};
+
+/**
  * Removes a vote from a post.
  * 
  * @param {number} userId - The user_id of the user who is removing their vote.
@@ -148,4 +192,4 @@ const removeVoteFromPost = async (
   }
 };
 
-export {getMyVotes, getMyVoteFromPost, addVoteToPost, removeVoteFromPost};
+export {getMyVotes, getMyVoteFromPost, addVoteToPost, fetchVotesByPostId, removeVoteFromPost};
