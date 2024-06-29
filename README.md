@@ -83,17 +83,29 @@ Sovellus on toteutettu React Nativella.
 
 ## Back end
 
-On tämä repositorio.
+Sovelluksen back end perustuu kurssilla opetettuun serveriarkkitehtuuriin. Media-API on toteutettu perinteiseen REST API -tapaan.
 
 ## Apidoc
 
+Auth-serverin apidoc on osoitteessa 10.120.32.61:300.
+Media-APIn ja upload-serverin apidoc-sivujen näkymisen kanssa ilmeni ongelmia joita en osannut korjata, mutta jos tämän repositorion purkaa koneelleen ja avaa niiden public-kansiosta index.html-tiedoston, näkee niiden API-dokumentaation. 
+
 ## Tietokanta 
+
+Tietokannan luontiskriptiä pääsee tarkastelemaan tämän repositorion database-kansiosta. Sen pohjana käytin kurssilla annettua esimerkkitietokantaa, ja lähdin miettimään, mitä tarvitsen omaa sovellustani varten. 
+
+Olin vähällä tehdä postauksille ja niiden vastauksille eri taulut, mutta päädyin lopulta lisäämään Posts-tauluun reply_to-kentän, jonka voi jättää tyhjäksi, jos julkaisee uuden alkuperäisen postauksen, ja joka vastausten tapauksessa viittaa toisen postauksen post_id-kenttään.
+
+Profiilikuville tein erillisen taulun, joka viittaa käyttäjän user_id-kenttään, jotta Users-taulu ei menisi liian pitkäksi ja käyttäjätietoja voisi hakea ensisijaisesti ilman profiilikuvaa.
+
+Jos mulla olisi ollut enenmmän aikaa, olisin laajentanut tietokantaa lisäämällä sinne taulut Polls, PollOptions ja PollOptionVotes. Näitä polleja olisi voinut myös tehdä ja niihin olisi voinut vastata sovelluksessa.
 
 ## Bugit ja ongelmat
 
 Bugeja:
 
 - En saanut apidoc-sivua aukeamaan media-apissa tai upload-serverissä. Sivuille kuitenkin pääsee, jos tämän repositorion purkaa koneelleen ja avaa kunkin serverin public-kansion index.html-tiedoston selaimessa.
+- Ylä- tai alapeukkuja annettaessa peukutusten määränumerot näppäinten vieressä päivittyvät vähän viiveellä. 
 
 Miten jatkaisin sovellustani:
 
