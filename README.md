@@ -76,6 +76,8 @@ Voit myös tutkia muiden käyttäjien profiileja halutessasi. Pääset tarkastel
 
 5. Käynnistä back-end ja front-end! Back-endissä riittää "npm start" ja front-endissä "npx expo start".
 
+6. Lataa Expo Go kännykkääsi ja skannaa front-endin konsolissa näkyvä QR-koodi.
+
 
 ## Front end
 
