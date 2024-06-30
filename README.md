@@ -64,36 +64,52 @@ Voit myös tutkia muiden käyttäjien profiileja halutessasi. Pääset tarkastel
 
 ![Toisen käyttäjän profiili](./screenshots/Toisen%20käyttäjän%20profiili.jpg)
 
+## Näin saat sovelluksen toimimaan
 
+1. Pura tämä kansio, ja front endin repositorio (https://github.com/mannals/takkatuli-rn-client) koneellesi.
+
+2. Avaa repositoriot koneellasi, ja muista 'npm install'
+
+3. Luo serverien kansioihin .env-tiedostot .env.samplen mukaisesti. Aseta DB_HOST = localhost ja DB_NAME = ForumApp. UPLOAD_URL on vietävä upload-serverin uploads-kansioon. AUTH_URL, UPLOAD_SERVER ja MEDIA-API ovat linkkejä serverien portteihin.
+
+4. Aja MariaDB:llä tai vastaavalla database-kansiosta löytyvä tietokannan luontiskripti.
+
+5. Käynnistä back-end ja front-end! Back-endissä riittää "npm start" ja front-endissä "npx expo start".
 
 
 ## Front end
 
 Sovellus on toteutettu React Nativella.
 
-1. Pura front endin repositorio koneellesi: https://github.com/mannals/takkatuli-rn-client
-
-2. Avaa repositoriot koneellasi, ja muista 'npm install'
-
-3. Lataa kännykällesi Expo Go -sovellus.
-
-4. Avaa front endin kansio IDE:ssäsi, ja suorita terminaalissa komento "npx expo start". Terminaaliin ilmestyy QR-koodi, jonka voit skannata joko Expo Golla jos olet Android-käyttäjä, tai kännykkäsi kameralla jos olet iPhone-käyttäjä.
-
-5. profit
+Linkki front-endin repositorioon: 
+https://github.com/mannals/takkatuli-rn-client 
 
 ## Back end
 
-On tämä repositorio.
+Sovelluksen back end perustuu kurssilla opetettuun serveriarkkitehtuuriin. Media-API on toteutettu perinteiseen REST API -tapaan.
 
 ## Apidoc
 
+Apidoc-sivujen näkymisen kanssa ilmeni ongelmia joita en osannut korjata, mutta jos tämän repositorion purkaa koneelleen ja avaa serverien sisäisistä public-kansioista index.html-tiedoston, näkee niiden API-dokumentaation.
+
 ## Tietokanta 
+
+Tietokannan luontiskriptiä pääsee tarkastelemaan tämän repositorion database-kansiosta. Sen pohjana käytin kurssilla annettua esimerkkitietokantaa, ja lähdin miettimään, mitä tarvitsen omaa sovellustani varten.
+
+Olin vähällä tehdä postauksille ja niiden vastauksille eri taulut, mutta päädyin lopulta lisäämään Posts-tauluun reply_to-kentän, jonka voi jättää tyhjäksi, jos julkaisee uuden alkuperäisen postauksen, ja joka vastausten tapauksessa viittaa toisen postauksen post_id-kenttään.
+
+Profiilikuville tein erillisen taulun, joka viittaa käyttäjän user_id-kenttään, jotta Users-taulu ei menisi liian pitkäksi ja käyttäjätietoja voisi hakea ensisijaisesti ilman profiilikuvaa.
+
+Jos mulla olisi ollut enenmmän aikaa, olisin laajentanut tietokantaa lisäämällä sinne taulut Polls, PollOptions ja PollOptionVotes. Näitä polleja olisi voinut myös tehdä ja niihin olisi voinut vastata sovelluksessa.
 
 ## Bugit ja ongelmat
 
 Bugeja:
 
-- En saanut apidoc-sivua aukeamaan media-apissa tai upload-serverissä. Sivuille kuitenkin pääsee, jos tämän repositorion purkaa koneelleen ja avaa kunkin serverin public-kansion index.html-tiedoston selaimessa.
+- En saanut apidoc-sivuja aukeamaan serverien porteissa. Sivuille kuitenkin pääsee, jos tämän repositorion purkaa koneelleen ja avaa kunkin serverin public-kansion index.html-tiedoston selaimessa.
+- Ylä- tai alapeukkuja annettaessa peukutusten määränumerot näppäinten vieressä päivittyvät vähän viiveellä.
+- Tiedoston lataaminen ei aina toimi - yleensä auttaa, jos vain kokeilee uudelleen.
+- En saanut tätä millään toteutettua koulun servereillä järkevästi.
 
 Miten jatkaisin sovellustani:
 
@@ -106,4 +122,48 @@ Miten jatkaisin sovellustani:
 ## Referenssit ja käytetyt kirjastot
 
 Referensseinä olen käyttänyt Hybridisovellukset-kurssin materiaaleja, Monialustaprojekti-kurssin ryhmätyöni koodia, Github Copilotia ja eri käyttämieni kirjastojen dokumentaatioita.
+
+### Käyttämäni kirjastot
+
+Back-endin juuri:
+- concurrently (servereiden yhtäaikaiseen käynnistämiseen)
+
+Auth-serveri: 
+- apidoc
+- bcryptjs
+- helmet
+- jsonwebtoken
+- morgan
+- mysql2
+
+Media-API:
+- apidoc
+- bcryptjs
+- fetch
+- helmet
+- jsonwebtoken
+- morgan
+- multer
+- mysql2
+
+Upload-server:
+- apidoc
+- bcryptjs
+- fluent-ffmpeg
+- geojson
+- helmet
+- jsonwebtoken
+- morgan
+- multer
+- sharp
+
+Front end:
+- font awesome
+- react native elements
+- react native async storage
+- expo document picker
+- expo file system
+- moment
+- react hook form
+
 
